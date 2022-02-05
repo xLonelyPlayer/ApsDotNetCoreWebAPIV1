@@ -1,15 +1,16 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using SuperHeroAPI.Data;
+using SuperHeroAPI.Models;
 using SuperHeroAPI.Repositories.Interfaces;
 
 namespace SuperHeroAPI.Repositories
 {
-    public class SuperHeroRepositorieMongoDB : ISuperHeroRespositorie
+    public class SuperHeroRepositoryMongoDB : ISuperHeroRespository
     {
         private readonly IMongoCollection<SuperHero> _heroes;
 
-        public SuperHeroRepositorieMongoDB(IOptions<SuperHeroDatabaseSettings> options)
+        public SuperHeroRepositoryMongoDB(IOptions<SuperHeroDatabaseSettings> options)
         {
             var mongoClient = new MongoClient(options.Value.ConnectionString);
             _heroes = mongoClient.GetDatabase(options.Value.DatabaseName)

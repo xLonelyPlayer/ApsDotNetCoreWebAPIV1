@@ -1,6 +1,8 @@
-﻿namespace SuperHeroAPI.Repositories.Interfaces
+﻿using SuperHeroAPI.Models;
+
+namespace SuperHeroAPI.Repositories.Interfaces
 {
-    public interface ISuperHeroRespositorie
+    public interface ISuperHeroRespository
     {
         Task<List<SuperHero>> GetAll();
         Task<SuperHero?> GetAsync(string id);

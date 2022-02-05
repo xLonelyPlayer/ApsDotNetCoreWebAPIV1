@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 
-namespace SuperHeroAPI
+namespace SuperHeroAPI.Models
 {
     public class SuperHero
     {

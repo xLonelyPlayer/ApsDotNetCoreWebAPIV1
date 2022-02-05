@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SuperHeroAPI.Data;
 using SuperHeroAPI.Repositories;
+using SuperHeroAPI.Models;
 using SuperHeroAPI.Repositories.Interfaces;
 using System.Text.Json;
 
@@ -12,9 +13,9 @@ namespace SuperHeroAPI.Controllers
     [ApiController]
     public class SuperHeroController : ControllerBase
     {
-        private readonly ISuperHeroRespositorie repo;
+        private readonly ISuperHeroRespository repo;
 
-        public SuperHeroController(ISuperHeroRespositorie repo)
+        public SuperHeroController(ISuperHeroRespository repo)
         {
             this.repo = repo;
         }
