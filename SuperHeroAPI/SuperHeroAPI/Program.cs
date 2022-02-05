@@ -1,10 +1,13 @@
 using SuperHeroAPI;
 using SuperHeroAPI.Data;
+using SuperHeroAPI.Repositories;
+using SuperHeroAPI.Repositories.Interfaces;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<SuperHeroDatabaseSettings>(builder.Configuration.GetSection("SuperHeroDatabaseSettings"));
 builder.Services.AddSingleton<SuperHero>();
+builder.Services.AddScoped<ISuperHeroRespositorie, SuperHeroRepositorieMongoDB>();
 // Add services to the container.
 
 builder.Services.AddControllers().AddJsonOptions(x =>

@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using SuperHeroAPI.Data;
+using SuperHeroAPI.Repositories;
+using SuperHeroAPI.Repositories.Interfaces;
 using System.Text.Json;
 
 namespace SuperHeroAPI.Controllers
@@ -11,50 +12,54 @@ namespace SuperHeroAPI.Controllers
     [ApiController]
     public class SuperHeroController : ControllerBase
     {
-        private readonly IMongoCollection<SuperHero> _heroes;
+        private readonly ISuperHeroRespositorie repo;
 
-        public SuperHeroController(IOptions<SuperHeroDatabaseSettings> options)
+        public SuperHeroController(ISuperHeroRespositorie repo)
         {
-            var mongoClient = new MongoClient(options.Value.ConnectionString);
-            _heroes = mongoClient.GetDatabase(options.Value.DatabaseName)
-                .GetCollection<SuperHero>(options.Value.SuperHeroCollection);
+            this.repo = repo;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<SuperHero>>> Get()
         {
-            return await _heroes.Find(_ => true).ToListAsync();
+            return await repo.GetAll();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<SuperHero>> Get(string id)
         {
-            var hero = _heroes.Find(m => m.Id == id).FirstOrDefaultAsync();
+            var hero = await repo.GetAsync(id);
             if (hero == null)
                 return BadRequest("Hero not found.");
             return Ok(hero);
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<SuperHero>>> AddHero([FromBody] SuperHero newHero)
+        public async Task<ActionResult<SuperHero>> AddHero([FromBody] SuperHero newHero)
         {
-            newHero.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
-            await _heroes.InsertOneAsync(newHero);
-            return Ok(JsonSerializer.Serialize(newHero));
+            var addedHero = await repo.AddAsync(newHero);
+            return Ok(addedHero);
         }
 
         [HttpPut]
-        public async Task<ActionResult<List<SuperHero>>> UpdateHero(SuperHero updateHero)
+        public async Task<ActionResult<SuperHero>> UpdateHero([FromBody] SuperHero updateHero)
         {
-            await _heroes.ReplaceOneAsync(m => m.Id == updateHero.Id, updateHero);
-            return Ok(JsonSerializer.Serialize(updateHero));
+            var updatedHero = await repo.UpdateAsync(updateHero);
+            return Ok(updatedHero);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<List<SuperHero>>> DeleteHero(string id)
+        public async Task<ActionResult<SuperHero>> DeleteHero(string id)
         {
-            var hero = _heroes.DeleteOneAsync(m => m.Id == id);
-            return Ok(_heroes);
+            try
+            {
+                if (!await repo.DeleteAsync(id))
+                    return NotFound();
+                return Ok();
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
